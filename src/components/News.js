@@ -30,8 +30,10 @@ const News = () => {
           );
         }
       } catch (error) {
+        console.error("Error fetching news:", error); // Log the error for debugging
         setError("Error fetching news");
       }
+      
     };
 
     fetchNews();
