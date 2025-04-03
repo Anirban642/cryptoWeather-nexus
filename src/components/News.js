@@ -8,19 +8,19 @@ const News = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY; // Access from env
+        const apiKey = process.env.NEXT_PUBLIC_MEDIASTACK_API_KEY; // Access from env
         if (!apiKey) {
           throw new Error("Missing API Key");
         }
 
         const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${apiKey}`
+          `https://api.mediastack.com/v1/news?access_key=${apiKey}&countries=us&categories=business&limit=5`
         );
         const data = await response.json();
 
-        if (data.articles) {
+        if (data.data) {
           setNews(
-            data.articles.slice(0, 5).map((article) => ({
+            data.data.map((article) => ({
               title: article.title,
               description: article.description
                 ? article.description.split(".")[0] + "."
@@ -30,10 +30,9 @@ const News = () => {
           );
         }
       } catch (error) {
-        console.error("Error fetching news:", error); // Log the error for debugging
+        console.error("Error fetching news:", error);
         setError("Error fetching news");
       }
-      
     };
 
     fetchNews();
