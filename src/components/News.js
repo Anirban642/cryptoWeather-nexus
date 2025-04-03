@@ -42,6 +42,8 @@ const News = () => {
     fetchNews();
   }, []);
 
+  // fixed some mistakes
+
   if (error) return <p className="text-red-500">Error loading news</p>;
 
   return (
@@ -52,6 +54,7 @@ const News = () => {
           <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md">
             <h3 className="text-lg font-semibold">{article.title}</h3>
             <p className="text-sm text-gray-400 line-clamp-2">{article.description}</p>
+            
             <a
               href={article.url}
               target="_blank"
