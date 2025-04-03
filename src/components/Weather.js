@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Weather = () => {
   const dispatch = useDispatch();
-  const { data, loading, error } = useSelector((state) => state.weather);
+  const { data, loading} = useSelector((state) => state.weather);
   const [city, setCity] = useState("");
   const [lastSearchedCity, setLastSearchedCity] = useState(null); // ✅ Track last searched city
 
