@@ -16,22 +16,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ Updated Metadata (Recommended for SEO)
+// ✅ Updated Metadata (Ensure correct favicon path)
 export const metadata: Metadata = {
   title: "CryptoWeather Nexus",
   description: "Get live weather updates, cryptocurrency prices, and the latest news in one place!",
+  icons: {
+    icon: "/download.ico", // ✅ Correct favicon path
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
-        {/* ✅ Avoids unnecessary <title> inside <head>, as Next.js manages metadata */}
-        {/* <title>CryptoWeather Nexus</title> ✅ REMOVE THIS */}
+        {/* ✅ Explicitly add the favicon */}
+        <link rel="icon" href="/download.ico" sizes="32x32" type="image/x-icon" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClientWrapper>
