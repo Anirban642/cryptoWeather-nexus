@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ Updated Metadata
+// ✅ Updated Meta
 export const metadata: Metadata = {
   title: "CryptoWeather Nexus",
   description: "Get live weather updates, cryptocurrency prices, and latest news in one place!",
