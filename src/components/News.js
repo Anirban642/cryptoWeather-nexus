@@ -29,7 +29,7 @@ const News = () => {
             }))
           );
         }
-      } catch (err) {
+      } catch {
         setError("Error fetching news");
       }
     };
