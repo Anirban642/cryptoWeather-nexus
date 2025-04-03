@@ -7,11 +7,12 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Weather = () => {
   const dispatch = useDispatch();
-  const { data, loading} = useSelector((state) => state.weather);
+  const { data, loading } = useSelector((state) => state.weather);
   const [city, setCity] = useState("");
+  const [favoriteCity, setFavoriteCity] = useState(null); // ✅ Only ONE favorite city
   const [lastSearchedCity, setLastSearchedCity] = useState(null); // ✅ Track last searched city
 
-  // Fetch fixed initial cities
+  // Fetch initial cities
   useEffect(() => {
     dispatch(fetchWeatherData("New York"));
     dispatch(fetchWeatherData("London"));
@@ -22,23 +23,39 @@ const Weather = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (city.trim() !== "") {
-      setLastSearchedCity(city.trim()); // ✅ Update last searched city
+      setLastSearchedCity(city.trim()); // ✅ Latest searched city replaces 4th position
       dispatch(fetchWeatherData(city.trim()));
       toast.info(`🔍 Searching for weather in ${city.trim()}...`);
       setCity("");
     }
   };
 
-  // ✅ Ensure only 4 cities exist (First 3 fixed, Last one is the searched city)
+  // Toggle favorite city
+  const toggleFavorite = (cityName) => {
+    if (favoriteCity === cityName) {
+      setFavoriteCity(null); // ✅ Remove favorite if clicked again
+      toast.warn(`❌ Removed ${cityName} from favorites`);
+    } else {
+      setFavoriteCity(cityName); // ✅ Set new favorite
+      toast.success(`⭐ ${cityName} is now your favorite`);
+    }
+  };
+
+  // Maintain the order of cities (Favorite at top, others below)
   const fixedCities = ["New York", "London", "Tokyo"];
-  const sortedCities = [...fixedCities];
+  let sortedCities = [...fixedCities];
 
   if (lastSearchedCity) {
-    sortedCities.push(lastSearchedCity); // Add last searched city at position 4
+    sortedCities[3] = lastSearchedCity; // ✅ Keep latest search in 4th position
+  }
+
+  // Move favorite city to the top if exists
+  if (favoriteCity && sortedCities.includes(favoriteCity)) {
+    sortedCities = [favoriteCity, ...sortedCities.filter((city) => city !== favoriteCity)];
   }
 
   return (
-    <div className="flex flex-col items-center p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-lg w-full max-w-md">
+    <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-lg">
       <h2 className="text-2xl font-bold mb-4">🌍 Live Weather</h2>
 
       {/* Search Box */}
@@ -48,31 +65,39 @@ const Weather = () => {
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Enter City..."
-          className="p-2 w-2.5 flex-grow rounded-l bg-gray-700 text-white outline-none"
+          className="p-2 w-full rounded-l bg-gray-700 text-white outline-none"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-700"
-        >
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-700">
           🔍
         </button>
       </form>
 
       {loading && <p className="text-center text-yellow-400">Fetching latest weather data...</p>}
 
-      <div className="space-y-4 w-full">
-        {sortedCities.map((city) => {
-          const weather = data[city]?.weather?.[0];
-          if (!weather) return null; // Prevents errors
-          const wind = data[city].wind;
+      {/* Weather Cards */}
+      <div className="space-y-4">
+        {sortedCities.map((cityName) => {
+          const weather = data[cityName]?.weather?.[0];
+          if (!weather) return null;
+          const wind = data[cityName].wind;
 
           return (
-            <div key={city} className="relative p-6 bg-gray-800 rounded-2xl shadow-md flex flex-col items-center w-full">
-              <h3 className="text-xl font-semibold">{city}</h3>
+            <div key={cityName} className="p-6 bg-gray-800 rounded-lg shadow-md relative">
+              <h3 className="text-xl font-semibold">{cityName}</h3>
               <p className="text-4xl mt-2">☀️</p>
-              <p className="text-3xl font-bold mt-2">{data[city].main.temp}°C</p>
-              <p className="text-gray-400">💧 Humidity: {data[city].main.humidity}%</p>
+              <p className="text-3xl font-bold mt-2">{data[cityName].main.temp}°C</p>
+              <p className="text-gray-400">💧 Humidity: {data[cityName].main.humidity}%</p>
               <p className="text-gray-400">💨 Wind: {wind.speed} m/s</p>
+
+              {/* Favorite Button (Only 1 favorite at a time) */}
+              <button
+                onClick={() => toggleFavorite(cityName)}
+                className={`absolute top-2 right-2 px-3 py-1 rounded ${
+                  favoriteCity === cityName ? "bg-yellow-500 text-white" : "bg-gray-600 text-yellow-300"
+                }`}
+              >
+                {favoriteCity === cityName ? "⭐" : "☆"}
+              </button>
             </div>
           );
         })}
