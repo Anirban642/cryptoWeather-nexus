@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     icon: "/download.ico", // ✅ Correct favicon path
   },
 };
+// changes done
 
 export default function RootLayout({
   children,
