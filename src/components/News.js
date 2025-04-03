@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const News = () => {
   const [news, setNews] = useState([]);
@@ -28,10 +30,12 @@ const News = () => {
               url: article.url,
             }))
           );
+          toast.success("✅ News loaded successfully!");
         }
       } catch (error) {
         console.error("Error fetching news:", error);
         setError("Error fetching news");
+        toast.error("❌ Failed to load news.");
       }
     };
 

@@ -1,11 +1,24 @@
+"use client";  // ✅ Add this at the top
+
+import { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Weather from "@/components/Weather";
 import Crypto from "@/components/Crypto";
 import News from "@/components/News"; // Import News Component
 
 export default function Home() {
+  useEffect(() => {
+    toast.success("🚀 CryptoWeather Nexus Loaded Successfully!");
+  }, []);
+
   return (
     <div className="min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white">
       
+      {/* Toast Notification Container */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
       {/* Main Heading */}
       <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400 mb-10">
         CryptoWeather Nexus

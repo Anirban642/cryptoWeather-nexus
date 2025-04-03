@@ -2,57 +2,39 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchWeatherData } from "@/redux/slices/weatherSlice";
-
-const getWeatherIcon = (description) => {
-  const lowerDesc = description.toLowerCase();
-  if (lowerDesc.includes("clear")) return "☀️";
-  if (lowerDesc.includes("cloud")) return "⛅";
-  if (lowerDesc.includes("rain")) return "🌧️";
-  if (lowerDesc.includes("thunderstorm")) return "⛈️";
-  if (lowerDesc.includes("snow")) return "❄️";
-  return "🌫️";
-};
-
-const getWindDirection = (deg) => {
-  if (deg >= 337.5 || deg < 22.5) return "⬆️ N";
-  if (deg >= 22.5 && deg < 67.5) return "↗️ NE";
-  if (deg >= 67.5 && deg < 112.5) return "➡️ E";
-  if (deg >= 112.5 && deg < 157.5) return "↘️ SE";
-  if (deg >= 157.5 && deg < 202.5) return "⬇️ S";
-  if (deg >= 202.5 && deg < 247.5) return "↙️ SW";
-  if (deg >= 247.5 && deg < 292.5) return "⬅️ W";
-  if (deg >= 292.5 && deg < 337.5) return "↖️ NW";
-  return "❓";
-};
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Weather = () => {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.weather);
   const [city, setCity] = useState("");
-  const [favorites, setFavorites] = useState(null); // Store the single favorite city
+  const [lastSearchedCity, setLastSearchedCity] = useState(null); // ✅ Track last searched city
 
+  // Fetch fixed initial cities
   useEffect(() => {
     dispatch(fetchWeatherData("New York"));
     dispatch(fetchWeatherData("London"));
     dispatch(fetchWeatherData("Tokyo"));
   }, [dispatch]);
 
+  // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
     if (city.trim() !== "") {
+      setLastSearchedCity(city.trim()); // ✅ Update last searched city
       dispatch(fetchWeatherData(city.trim()));
+      toast.info(`🔍 Searching for weather in ${city.trim()}...`);
       setCity("");
     }
   };
 
-  const toggleFavorite = (city) => {
-    setFavorites((prevFavorite) => (prevFavorite === city ? null : city));
-  };
+  // ✅ Ensure only 4 cities exist (First 3 fixed, Last one is the searched city)
+  const fixedCities = ["New York", "London", "Tokyo"];
+  const sortedCities = [...fixedCities];
 
-  const sortedCities = Object.keys(data);
-  if (favorites && sortedCities.includes(favorites)) {
-    sortedCities.splice(sortedCities.indexOf(favorites), 1);
-    sortedCities.unshift(favorites);
+  if (lastSearchedCity) {
+    sortedCities.push(lastSearchedCity); // Add last searched city at position 4
   }
 
   return (
@@ -77,32 +59,20 @@ const Weather = () => {
       </form>
 
       {loading && <p className="text-center text-yellow-400">Fetching latest weather data...</p>}
-      {error && <p className="text-center text-red-500">Error: {error}</p>}
 
       <div className="space-y-4 w-full">
         {sortedCities.map((city) => {
-          const weather = data[city].weather[0];
+          const weather = data[city]?.weather?.[0];
+          if (!weather) return null; // Prevents errors
           const wind = data[city].wind;
+
           return (
             <div key={city} className="relative p-6 bg-gray-800 rounded-2xl shadow-md flex flex-col items-center w-full">
-              {/* Favorite Button (Top Right) */}
-              <button
-                onClick={() => toggleFavorite(city)}
-                className="absolute top-2 right-2 text-2xl"
-              >
-                {favorites === city ? "❤️" : "🤍"}
-              </button>
-
               <h3 className="text-xl font-semibold">{city}</h3>
-              <p className="text-4xl mt-2">{getWeatherIcon(weather.description)}</p>
+              <p className="text-4xl mt-2">☀️</p>
               <p className="text-3xl font-bold mt-2">{data[city].main.temp}°C</p>
-              {/* <p className="mt-1 text-lg">🌥️ {weather.description}</p> */}
-              <div className="mt-4 text-sm flex flex-col items-center gap-1">
-                <p className="text-gray-400">⬇️ Min: <span className="text-white">{data[city].main.temp_min}°C</span></p>
-                <p className="text-gray-400">⬆️ Max: <span className="text-white">{data[city].main.temp_max}°C</span></p>
-                <p className="text-gray-400">💧 Humidity: <span className="text-white">{data[city].main.humidity}%</span></p>
-                <p className="text-gray-400">💨 Wind: <span className="text-white">{wind.speed} m/s {getWindDirection(wind.deg)}</span></p>
-              </div>
+              <p className="text-gray-400">💧 Humidity: {data[city].main.humidity}%</p>
+              <p className="text-gray-400">💨 Wind: {wind.speed} m/s</p>
             </div>
           );
         })}

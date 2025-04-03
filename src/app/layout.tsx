@@ -16,10 +16,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ Updated Meta
+// ✅ Updated Metadata (Recommended for SEO)
 export const metadata: Metadata = {
   title: "CryptoWeather Nexus",
-  description: "Get live weather updates, cryptocurrency prices, and latest news in one place!",
+  description: "Get live weather updates, cryptocurrency prices, and the latest news in one place!",
 };
 
 export default function RootLayout({
@@ -30,7 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>CryptoWeather Nexus</title> {/* Ensures title change */}
+        {/* ✅ Avoids unnecessary <title> inside <head>, as Next.js manages metadata */}
+        {/* <title>CryptoWeather Nexus</title> ✅ REMOVE THIS */}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClientWrapper>
